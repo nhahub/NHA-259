@@ -1,0 +1,34 @@
+﻿@model IEnumerable<HeavyGo_Project_Identity.Models.Review>
+
+<h2>My Reviews</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Rating</th>
+            <th>Comment</th>
+            <th>Created At</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var review in Model)
+        {
+            <tr>
+                <td>@review.OrderId</td>
+                <td>@review.Rating</td>
+                <td>@review.Comment</td>
+                <td>@review.CreatedAt</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@review.ReviewId">View</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}

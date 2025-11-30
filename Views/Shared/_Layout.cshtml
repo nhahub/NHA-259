@@ -1,0 +1,93 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> _UserManager
+
+@{
+    ApplicationUser currentUser = null;
+    if (User.Identity.IsAuthenticated)
+    {
+        currentUser = await _UserManager.GetUserAsync(User);
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>@ViewData["Title"] - HeavyGo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" />
+    <environment include="Development">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    </environment>
+    <style>
+        .navbar {
+            background: rgba(0,0,0,0.8);
+        }
+
+        .navbar-brand {
+            font-family: 'Pacifico', cursive;
+            font-size: 2rem;
+            font-style: italic;
+            color: #c59cff !important;
+            letter-spacing: 1px;
+        }
+
+            .navbar-brand:hover {
+                color: #e8d7ff !important;
+            }
+
+        .navbar .btn-purple {
+            background-color: #7a1fbf;
+            border: none;
+            transition: 0.3s;
+        }
+
+            .navbar .btn-purple:hover {
+                background-color: #6a18a8;
+            }
+    </style>
+</head>
+<body class="bg-light" style="font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto;">
+    <header class="navbar">
+        <div class="container-fluid">
+            @if (User.Identity.IsAuthenticated)
+            {
+                if (User.IsInRole("Client"))
+                {
+                    <a class="navbar-brand" href="/Home/ClientHome">HeavyGo</a>
+                }
+                else if(User.IsInRole("Driver"))
+                {
+                    <a class="navbar-brand" href="/Home/DriverHome">HeavyGo</a>
+                }
+                
+            }
+            @if(User.Identity.IsAuthenticated)
+            {
+            <div class="d-flex ms-auto align-items-center">
+                <a class="btn btn-outline-light btn-sm" asp-controller="Orders" asp-action="Index">MyOrders</a>
+                <a class="btn btn-outline-light btn-sm" asp-controller="Reviews" asp-action="UserReviews">MyReviews</a>
+                <a class="btn btn-outline-light btn-sm" asp-controller="Payments" asp-action="UserPayments">MyPayments</a>
+                <a class="btn btn-outline-light btn-sm" asp-controller="Profile" asp-action="Index">Profile</a>
+                <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
+                    <button type="submit" class="">Logout</button>
+                </form>
+            </div>
+            }
+        </div>
+    </header>
+
+    <main class="container my-4">
+        @RenderBody()
+    </main>
+
+    <footer class="text-center py-4 text-muted">
+        © @DateTime.Now.Year HeavyGo
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

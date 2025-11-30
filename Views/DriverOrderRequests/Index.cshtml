@@ -1,0 +1,38 @@
+﻿@model IEnumerable<HeavyGo_Project_Identity.Models.DriverOrderRequest>
+
+@{
+    ViewData["Title"] = "Pending Requests";
+}
+
+<h2>Pending Driver Requests</h2>
+
+<table class="table table-bordered table-striped mt-3">
+    <thead class="thead-dark">
+        <tr>
+            <th>Request ID</th>
+            <th>Order ID</th>
+            <th>Pickup</th>
+            <th>Dropoff</th>
+            <th>Total Price</th>
+            <th>Requested At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var req in Model)
+        {
+            <tr>
+                <td>@req.RequestId</td>
+                <td>@req.OrderId</td>
+                <td>@req.Order.PickupLocation</td>
+                <td>@req.Order.DropoffLocation</td>
+                <td>@req.Order.TotalPrice.ToString("C")</td>
+                <td>@req.RequestedAt.ToString("g")</td>
+                <td>
+                    <a asp-action="Accept" asp-route-id="@req.RequestId" class="btn btn-success btn-sm">Accept</a>
+                    <a asp-action="Reject" asp-route-id="@req.RequestId" class="btn btn-danger btn-sm">Reject</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

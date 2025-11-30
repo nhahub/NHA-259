@@ -1,0 +1,101 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Live Location</title>
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@7.0.0/dist/browser/signalr.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDKbAzEQxZlvR0b4wfAWgcfs5ocdsOt2ds"></script>
+    <style>
+        #map {
+            height: 450px;
+            width: 100%;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-box {
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="container py-4 ">
+    <h1 class=" text-center mb-4">Ready to Order ?</h1>
+    <div id="map"></div>
+    <div class="container text-center mt-5">
+        <p>Click below to place a new furniture order.</p>
+
+        <a asp-controller="Orders" asp-action="Create" class="btn btn-primary btn-lg">
+            Place Order
+        </a>
+    </div>
+
+
+    <script>
+        let map;
+        let marker;
+        let otherMarkers = {}; // to track other users
+
+        function initMap(lat = 30.0444, lon = 31.2357) {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: lat, lng: lon },
+                zoom: 15,
+                mapTypeId: google.maps.MapTypeId.HYBRID,
+            });
+
+            marker = new google.maps.Marker({
+                position: { lat: lat, lng: lon },
+                map: map,
+                title: "You"
+            });
+        }
+
+
+        function updateMarker(lat, lon) {
+            marker.setPosition({ lat: lat, lng: lon });
+            map.setCenter({ lat: lat, lng: lon });
+        }
+
+        // SignalR connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/locationHub")
+            .build();
+
+        connection.on("ReceiveLocation", (userId, lat, lon) => {
+            if (!otherMarkers[userId]) {
+                otherMarkers[userId] = new google.maps.Marker({
+                    position: { lat, lng: lon },
+                    map: map,
+                    icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                });
+            } else {
+                otherMarkers[userId].setPosition({ lat, lng: lon });
+            }
+        });
+
+
+        connection.start().then(() => {
+            console.log("SignalR connected");
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    if (!map) initMap(lat, lon);
+                    updateMarker(lat, lon);
+                    connection.invoke("SendLocation", lat, lon);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }).catch(err => console.error(err));
+    </script>
+</body>
+</html>

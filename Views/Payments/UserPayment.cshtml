@@ -1,0 +1,29 @@
+﻿@model IEnumerable<HeavyGo_Project_Identity.Models.Payment>
+
+<h2>My Payments</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Amount</th>
+            <th>Payment Method</th>
+            <th>Paid At</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var payment in Model)
+        {
+            <tr>
+                <td>@payment.OrderId</td>
+                <td>@payment.Amount</td>
+                <td>@payment.PaymentMethod</td>
+                <td>@payment.PaidAt</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@payment.PaymentId">View</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,10 @@
+﻿@model HeavyGo_Project_Identity.Models.Payment
+
+<h2>Payment Details</h2>
+
+<p><strong>Order ID:</strong> @Model.OrderId</p>
+<p><strong>Amount:</strong> @Model.Amount</p>
+<p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+<p><strong>Paid At:</strong> @Model.PaidAt</p>
+
+<a asp-action="UserPayment" class="btn btn-primary">Back to My Payments</a>

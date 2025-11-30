@@ -1,0 +1,26 @@
+﻿@model HeavyGo_Project_Identity.Models.Order
+
+@{
+    ViewData["Title"] = "Pay for Order";
+}
+
+<h2>Pay for Order #@Model.OrderId</h2>
+
+<p><strong>Pickup:</strong> @Model.PickupLocation</p>
+<p><strong>Dropoff:</strong> @Model.DropoffLocation</p>
+<p><strong>Total Price:</strong> @Model.TotalPrice.ToString("C")</p>
+
+<form asp-action="Create" method="post">
+    <input type="hidden" name="orderId" value="@Model.OrderId" />
+
+    <div class="form-group">
+        <label>Payment Method</label>
+        <select name="paymentMethod" class="form-control" required>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Cash">Cash</option>
+            <option value="PayPal">PayPal</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success mt-2">Pay Now</button>
+</form>

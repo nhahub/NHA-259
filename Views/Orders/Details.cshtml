@@ -1,0 +1,100 @@
+﻿@model HeavyGo_Project_Identity.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<h2>Order #@Model.OrderId</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <p><strong>Pickup:</strong> @Model.PickupLocation</p>
+        <p><strong>Dropoff:</strong> @Model.DropoffLocation</p>
+        <p><strong>Total Price:</strong> @Model.TotalPrice.ToString("C")</p>
+        <p><strong>Created At:</strong> @Model.CreatedAt.ToString("g")</p>
+    </div>
+</div>
+
+<h4>Driver Requests</h4>
+@if (Model.DriverRequests != null && Model.DriverRequests.Any())
+{
+    <table class="table table-bordered table-sm">
+        <thead>
+            <tr>
+                <th>Driver</th>
+                <th>Status</th>
+                <th>Requested At</th>
+                <th>Responded At</th>
+                <th>Estimated Arrival (min)</th>
+                <th>Proposed Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var req in Model.DriverRequests)
+            {
+                <tr>
+                    <td>@req.Driver.UserName</td>
+                    <td>@req.Status</td>
+                    <td>@req.RequestedAt.ToString("g")</td>
+                    <td>@(req.RespondedAt.HasValue? req.RespondedAt.Value.ToString("g") : "-")</td>
+                    <td>@(req.EstimatedArrivalMinutes?.ToString() ?? "-")</td>
+                    <td>@(req.ProposedPrice?.ToString("C") ?? "-")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No driver requests yet.</p>
+}
+
+<h4>Payment</h4>
+@if (Model.Payment != null)
+{
+    <p><strong>Amount:</strong> @Model.Payment.Amount.ToString("C")</p>
+    <p><strong>Paid At:</strong> @Model.Payment.PaidAt.ToString("g")</p>
+    <p><strong>Method:</strong> @Model.Payment.PaymentMethod</p>
+}
+else
+{
+    <a asp-controller="Payments" asp-action="Create" asp-route-orderId="@Model.OrderId" class="btn btn-success mb-3">
+        Pay Now
+    </a>
+}
+
+<h4>Review</h4>
+@if (Model.Reviews != null && Model.Reviews.Any())
+{
+    @foreach (var review in Model.Reviews)
+    {
+        <div class="card mb-2">
+            <div class="card-body">
+                <p><strong>Rating:</strong> @review.Rating / 5</p>
+                <p><strong>Comment:</strong> @review.Comment</p>
+                <p><strong>Created At:</strong> @review.CreatedAt.ToString("g")</p>
+            </div>
+        </div>
+    }
+}
+else if (Model.Payment != null)
+{
+    <a asp-controller="Reviews" asp-action="Create" asp-route-orderId="@Model.OrderId" class="btn btn-primary">
+        Submit Review
+    </a>
+}
+else
+{
+    <p>Pay first to submit a review.</p>
+}
+@section NavbarButtons {
+    <div class="d-flex ms-auto align-items-center">
+        <a class="btn btn-outline-light btn-sm" asp-controller="Orders" asp-action="Index">MyOrders</a>
+        <a class="btn btn-outline-light btn-sm" asp-controller="Reviews" asp-action="UserReviews">MyReviews</a>
+        <a class="btn btn-outline-light btn-sm" asp-controller="Payments" asp-action="UserPayment">MyPayments</a>
+        <a class="btn btn-outline-light btn-sm" asp-controller="Profile" asp-action="Index">Profile</a>
+        <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
+            <button type="submit" class="">Logout</button>
+        </form>
+    </div>
+}

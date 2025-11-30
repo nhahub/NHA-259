@@ -1,0 +1,179 @@
+﻿@model HeavyGo_Project_Identity.Models.Order
+
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@7.0.0/dist/browser/signalr.min.js"></script>
+
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<h2>Create Order</h2>
+
+<form asp-action="Create" method="post">
+
+    <div class="row">
+        <div class="form-group">
+            <label asp-for="PickupLocation"></label>
+            <input asp-for="PickupLocation" id="PickupLocation" class="form-control" />
+            <span asp-validation-for="PickupLocation" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="DropoffLocation"></label>
+            <input asp-for="DropoffLocation" id="DropoffLocation" class="form-control"/>
+            <span asp-validation-for="DropoffLocation" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="TotalPrice"></label>
+            <input asp-for="TotalPrice" class="form-control" />
+            <span asp-validation-for="TotalPrice" class="text-danger"></span>
+        </div>
+
+    </div>
+
+    <br />
+
+    <button type="button" class="btn btn-primary" id="useMyLocationBtn">Use My Location as Pickup</button>
+
+    <br /><br />
+
+    <div id="map"></div>
+
+    <br />
+
+    <button type="submit" class="btn btn-success">Create Order</button>
+</form>
+
+<script>
+    let map;
+    let pickupMarker = null;
+    let destinationMarker = null;
+    let driverMarker = null;
+    let routeLine = null;
+
+    let currentMode = "pickup"; // click input = choose mode
+
+    // Initialize map
+    function initMap() {
+        map = L.map('map').setView([30.0444, 31.2357], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        map.on("click", (e) => {
+            const lat = e.latlng.lat;
+            const lon = e.latlng.lng;
+
+            if (currentMode === "pickup")
+                setPickup(lat, lon);
+            else
+                setDestination(lat, lon);
+
+            updateRoute();
+              });
+         }
+
+    // Set pickup marker
+    function setPickup(lat, lon) {
+        if (pickupMarker) map.removeLayer(pickupMarker);
+        pickupMarker = L.marker([lat, lon], { draggable: true }).addTo(map);
+
+        reverseGeocode(lat, lon, "PickupLocation");
+
+        pickupMarker.on("dragend", (e) => {
+            const p = e.target.getLatLng();
+            reverseGeocode(p.lat, p.lng, "PickupLocation");
+            updateRoute();
+        });
+    }
+
+    // Set destination marker
+    function setDestination(lat, lon) {
+        if (destinationMarker) map.removeLayer(destinationMarker);
+
+        destinationMarker = L.marker([lat, lon], {
+            draggable: true,
+            icon: L.icon({
+                iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                iconSize: [32, 32]
+            })
+        }).addTo(map);
+
+        reverseGeocode(lat, lon, "Destination");
+
+        destinationMarker.on("dragend", (e) => {
+            const p = e.target.getLatLng();
+            reverseGeocode(p.lat, p.lng, "Destination");
+            updateRoute();
+        });
+    }
+
+    // Reverse geocode
+    function reverseGeocode(lat, lon, field) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById(field).value = d.display_name || `${lat}, ${lon}`;
+            });
+    }
+
+    // Show route line between pickup & destination
+    function updateRoute() {
+        if (routeLine) map.removeLayer(routeLine);
+        if (!pickupMarker || !destinationMarker) return;
+
+        const p1 = pickupMarker.getLatLng();
+        const p2 = destinationMarker.getLatLng();
+
+        routeLine = L.polyline([p1, p2], { weight: 4 }).addTo(map);
+    }
+
+    // Use user's live location for pickup
+    document.getElementById("useMyLocationBtn").addEventListener("click", () => {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+
+            map.setView([lat, lon], 16);
+            setPickup(lat, lon);
+            updateRoute();
+        });
+    });
+
+    // Detect input click → change mode
+    document.getElementById("PickupLocation").addEventListener("click", () => currentMode = "pickup");
+    document.getElementById("DropoffLocation").addEventListener("click", () => currentMode = "destination");
+
+    // ------------------ LIVE DRIVER TRACKING ------------------
+
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/locationHub")
+        .build();
+
+    connection.on("DriverLocation", (lat, lon) => {
+        if (!driverMarker) {
+            driverMarker = L.marker([lat, lon], {
+                icon: L.icon({
+                    iconUrl: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
+                    iconSize: [32, 32]
+                })
+            }).addTo(map);
+        } else {
+            driverMarker.setLatLng([lat, lon]);
+        }
+    });
+
+    connection.start().catch(err => console.error(err));
+
+    initMap();
+</script>

@@ -1,0 +1,13 @@
+﻿@model HeavyGo_Project_Identity.Models.Review
+
+<h2>Review Details</h2>
+
+<p><strong>Order ID:</strong> @Model.OrderId</p>
+<p><strong>Rating:</strong> @Model.Rating / 5</p>
+<p><strong>Comment:</strong> @Model.Comment</p>
+<p><strong>Created At:</strong> @Model.CreatedAt</p>
+
+<a asp-action="UserReviews" class="btn btn-primary">Back to My Reviews</a>
+<a asp-controller="Reviews" asp-action="Create" asp-route-orderId="@Model.OrderId" class="btn btn-primary">
+    Submit Review
+</a>

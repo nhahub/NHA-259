@@ -1,0 +1,17 @@
+﻿@page
+@model HeavyGo_Project_Identity.Areas.Identity.Pages.Account.ChooseRoleModel
+@{
+    ViewData["Title"] = "Choose Role";
+}
+
+<h2>Register as:</h2>
+
+<form method="post">
+    <div>
+        <input type="radio" asp-for="roleName" value="Client" checked /> Client
+    </div>
+    <div>
+        <input type="radio" asp-for="roleName" value="Driver" /> Driver
+    </div>
+    <button type="submit">Continue</button>
+</form>

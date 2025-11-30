@@ -1,0 +1,74 @@
+﻿@model HeavyGo_Project_Identity.ViewModels.DriverHomeViewModel
+
+<h2>Accepted Orders</h2>
+
+@if (!Model.AcceptedOrders.Any())
+{
+    <p>You haven't accepted any orders yet.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Client</th>
+                <th>From</th>
+                <th>To</th>
+                <th>TotalPrice</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model.AcceptedOrders)
+            {
+                <tr>
+                    <td>@order.ClientName</td>
+                    <td>@order.From</td>
+                    <td>@order.To</td>
+                    <th>@order.TotalPrice</th>
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+
+<h2>Nearby Orders</h2>
+
+@if (!Model.NearbyOrders.Any())
+{
+    <p>No active nearby orders.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Client</th>
+                <th>From</th>
+                <th>To</th>
+                <th>TotalPrice</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model.NearbyOrders)
+            {
+                <tr>
+                    <td>@order.ClientName</td>
+                    <td>@order.From</td>
+                    <td>@order.To</td>
+                    <th>@order.TotalPrice</th>
+
+                    <td>
+                        <form method="post" asp-action="AcceptOrder" asp-controller="Home">
+                            <input type="hidden" name="orderId" value="@order.OrderId" />
+                            <button class="btn btn-primary">Accept</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

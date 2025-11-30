@@ -1,0 +1,15 @@
+﻿@model HeavyGo_Project_Identity.Models.DriverOrderRequest
+
+<h2>Request Details</h2>
+
+<div>
+    <p><strong>Order ID:</strong> @Model.OrderId</p>
+    <p><strong>Pickup:</strong> @Model.Order.PickupLocation</p>
+    <p><strong>Dropoff:</strong> @Model.Order.DropoffLocation</p>
+    <p><strong>Total Price:</strong> @Model.Order.TotalPrice</p>
+    <p><strong>Status:</strong> @Model.Status</p>
+    <p><strong>Requested At:</strong> @Model.RequestedAt</p>
+    <p><strong>Responded At:</strong> @Model.RespondedAt</p>
+</div>
+
+<a asp-action="Index" class="btn btn-primary">Back to List</a>

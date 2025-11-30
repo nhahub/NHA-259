@@ -1,0 +1,77 @@
+﻿@model IEnumerable<HeavyGo_Project_Identity.Models.Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<h2>My Orders</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">Create New Order</a>
+
+@if (!Model.Any())
+{
+    <p>You have no orders yet.</p>
+}
+else
+{
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Pickup</th>
+                <th>Dropoff</th>
+                <th>Status</th>
+                <th>Payment</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.PickupLocation</td>
+                    <td>@order.DropoffLocation</td>
+                    <td>
+                        @if (order.DriverRequests.Any(dr => dr.Status == "Accepted"))
+                        {
+                            <span class="badge bg-success">Driver Accepted</span>
+                        }
+                        else if (order.DriverRequests.Any())
+                        {
+                            <span class="badge bg-warning">Pending</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Waiting</span>
+                        }
+                    </td>
+                    <td>
+                        @if (order.Payment != null)
+                        {
+                            <span class="badge bg-success">Paid</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Unpaid</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-info">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@section NavbarButtons {
+    <div class="d-flex ms-auto align-items-center">
+        <a class="btn btn-outline-light btn-sm" asp-controller="Orders" asp-action="Index">MyOrders</a>
+        <a class="btn btn-outline-light btn-sm" asp-controller="Reviews" asp-action="UserReviews">MyReviews</a>
+        <a class="btn btn-outline-light btn-sm" asp-controller="Payments" asp-action="UserPayment">MyPayments</a>
+        <a class="btn btn-outline-light btn-sm" asp-controller="Profile" asp-action="Index">Profile</a>
+        <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
+            <button type="submit" class="">Logout</button>
+        </form>
+    </div>
+}

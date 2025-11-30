@@ -1,0 +1,30 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager 
+@inject UserManager<ApplicationUser> UserManager 
+@if (SignInManager.IsSignedIn(User))
+{ 
+    var currentUser = await UserManager.GetUserAsync(User);
+    var profileImage = string.IsNullOrEmpty(currentUser.profileImageUrl) ? "/images/profile.jpg" : currentUser.profileImageUrl;
+    <li class="nav-item dropdown ms-auto">
+        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown" style="gap: 8px;">
+            <img src="@profileImage" class="nav-avatar" alt="Profile" />
+            <span class="nav-username">@currentUser.FullName</span> 
+        </a> 
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index">Profile</a></li> 
+            <li><hr class="dropdown-divider" /></li> 
+            <li> 
+                <form asp-area="Identity" asp-page="/Account/Logout" method="post">
+                <button type="submit" class="dropdown-item">Logout</button> 
+                </form> 
+            </li>
+        </ul>
+    </li>
+}
+else
+{ 
+    <li class="nav-item ms-auto">
+        <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li> <li class="nav-item"> <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    </li>
+}
